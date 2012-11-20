@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Lizard Evacuation - Demo</title>
+  
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
+  <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.ie.css" />
+  <![endif]-->
+  
+  <style type="text/css" media="screen">
+  	body {
+  		padding: 0;
+  		margin: 0;
+  	}
+  	html, body, #map {
+  		height: 100%;
+  	}    
+  </style>
+  
+  <script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
+  <script src="http://code.jquery.com/jquery.min.js"></script>
+  
+</head>
+
+<body id="index" onload="">
+  <div id="map"></div>
+  
+  <script>
+		var map = L.map('map');
+
+		L.tileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="http://cloudmade.com">CloudMade</a>'
+		}).addTo(map);
+
+    function showPopup(obj) {
+      
+      var geobj = obj.reverseGeoResponse.reverseGeoResult;
+      var radius = 40;
+      console.log(geobj);
+      latlong = new L.LatLng(geobj.latitude, geobj.longitude);
+
+			L.marker(latlong).addTo(map)
+				.bindPopup("You are within " + radius + " meters from " + geobj.formattedAddress).openPopup();
+			L.circle(latlong, radius).addTo(map);      
+    }
+
+		function onLocationFound(e) {
+			var radius = e.accuracy / 2;
+      $.ajax({
+          url: 'https://api.tomtom.com/lbs/services/reverseGeocode/3/jsonp?point=52.092747763124976%2C5.115900219999986&jsonp=showPopup&key=aztb7b4z64svu56d3wbvqd35',
+          dataType: 'jsonp',
+          jsonpCallbackString: 'showPopup'
+      });
+
+		}
+
+		function onLocationError(e) {
+			alert(e.message);
+		}
+
+		map.on('locationfound', onLocationFound);
+		map.on('locationerror', onLocationError);
+
+		map.locate({setView: true, maxZoom: 16});
+	</script>
+	
+</body>
+
+</html>
