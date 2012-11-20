@@ -107,7 +107,7 @@
       console.log("QS:", queryString);
 
       $.ajax({
-        url: "https://api.tomtom.com/lbs/services/route/3/" + queryString.toString() + "/Walk/jsonp?language=nl&abs=%3Aabs&callback=drawRoute&key=aztb7b4z64svu56d3wbvqd35",
+        url: "https://api.tomtom.com/lbs/services/route/3/" + queryString.toString() + "/Walk/jsonp?language=nl&abs=%3Aabs&jsonp=drawRoute&key=aztb7b4z64svu56d3wbvqd35",
         dataType: "json",        
       });
 
