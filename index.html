@@ -85,7 +85,7 @@
 
 
     function drawRoute(obj) {
-      // console.log(obj);
+      console.log(obj);
       return true;
     }
 
@@ -110,11 +110,11 @@
 
       // console.log(queryString);
 
-      // $.ajax({
-      //   url: "https://api.tomtom.com/lbs/services/route/3/" + queryString.toString() + "/Walk/jsonp?language=nl&abs=%3Aabs&callback=drawRoute&key=aztb7b4z64svu56d3wbvqd35",
-      //   dataType: "jsonp",
-      //   jsonpCallbackString: "drawRoute"
-      // });
+      $.ajax({
+        url: "https://api.tomtom.com/lbs/services/route/3/" + queryString.toString() + "/Walk/jsonp?language=nl&abs=%3Aabs&callback=drawRoute&key=aztb7b4z64svu56d3wbvqd35",
+        dataType: "jsonp",
+        jsonpCallbackString: "drawRoute"
+      });
 
       return L.marker(latlong).addTo(map)
               .bindPopup("...naar " + geobj.formattedAddress).openPopup();
