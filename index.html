@@ -23,7 +23,9 @@
   
   <script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
   <script src="http://code.jquery.com/jquery.min.js"></script>
-  
+  <script type="text/javascript" src="js/OpenLayers-2.12.min.js"></script>
+  <script type="text/javascript" src="js/tomtom.services.js"></script>
+  <script type="text/javascript" src="apikey.js"></script>
 </head>
 
 <body id="index" onload="">
@@ -95,20 +97,33 @@
 
       finishPoint = latlong;
 
-      var queryString = 
-        startingPoint.lat.toFixed(2) + 
-        "," + 
-        startingPoint.lng.toFixed(2) + 
-        ":" + 
-        finishPoint.lat.toFixed(2) + 
-        "," + 
-        finishPoint.lng.toFixed(2);
+      tomtom.require(["DomUtil"], function(du) {
 
-      console.log("QS:", queryString);
+        var routingService = new tomtom.services.RoutingService();
+        var points = [];
+        var latlngs = [];
 
-      $.ajax({
-        url: "https://api.tomtom.com/lbs/services/route/3/" + queryString.toString() + "/Walk/jsonp?language=nl&abs=%3Aabs&jsonp=drawRoute&key=aztb7b4z64svu56d3wbvqd35",
-        dataType: "json",        
+        points.push({lat: startingPoint.lat.toFixed(2), lon: startingPoint.lng.toFixed(2)});
+        points.push({lat: finishPoint.lat.toFixed(2), lon: finishPoint.lng.toFixed(2)});
+
+        latlngs.push(new L.LatLng(startingPoint.lat, startingPoint.lng));
+
+        routingService.getRoute(points, { avoidTraffic: true, includeTraffic: true, absolute: true }, function(response) {
+          window.data = response;
+          $.each(window.data.route.instructions.instruction, function(index, object) { 
+            var lat = object.point.latitude;
+            var lng = object.point.longitude;
+            latlngs.push(new L.LatLng(lat, lng));
+          });
+          latlngs.push(new L.LatLng(finishPoint.lat, finishPoint.lng));
+
+          var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+
+
+
+          // zoom the map to the polyline
+          map.fitBounds(polyline.getBounds());
+        });
       });
 
       return L.marker(latlong).addTo(map)
