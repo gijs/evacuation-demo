@@ -103,27 +103,32 @@
         var points = [];
         var latlngs = [];
 
-        points.push({lat: startingPoint.lat.toFixed(2), lon: startingPoint.lng.toFixed(2)});
-        points.push({lat: finishPoint.lat.toFixed(2), lon: finishPoint.lng.toFixed(2)});
+        points.push({lat: startingPoint.lat, lon: startingPoint.lng});
+        points.push({lat: finishPoint.lat, lon: finishPoint.lng});
 
         latlngs.push(new L.LatLng(startingPoint.lat, startingPoint.lng));
 
-        routingService.getRoute(points, { avoidTraffic: true, includeTraffic: true, absolute: true }, function(response) {
-          window.data = response;
-          $.each(window.data.route.instructions.instruction, function(index, object) { 
-            var lat = object.point.latitude;
-            var lng = object.point.longitude;
-            latlngs.push(new L.LatLng(lat, lng));
+        
+          routingService.getRoute(points, { avoidTraffic: true, includeTraffic: true, absolute: true }, function(response) {
+            window.data = response;
+            
+            try {
+              $.each(window.data.route.instructions.instruction, function(index, object) { 
+                var lat = object.point.latitude;
+                var lng = object.point.longitude;
+                latlngs.push(new L.LatLng(lat, lng));
+              });
+            } catch(error) {
+              return true;
+            }
+
+            latlngs.push(new L.LatLng(finishPoint.lat, finishPoint.lng));
+
+            var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+
+            // zoom the map to the polyline
+            map.fitBounds(polyline.getBounds());
           });
-          latlngs.push(new L.LatLng(finishPoint.lat, finishPoint.lng));
-
-          var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
-
-
-
-          // zoom the map to the polyline
-          map.fitBounds(polyline.getBounds());
-        });
       });
 
       return L.marker(latlong).addTo(map)
