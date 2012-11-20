@@ -41,11 +41,11 @@
       
       var geobj = obj.reverseGeoResponse.reverseGeoResult;
       var radius = 40;
-      console.log(geobj);
+
       latlong = new L.LatLng(geobj.latitude, geobj.longitude);
 
 			L.marker(latlong).addTo(map)
-				.bindPopup("You are within " + radius + " meters from " + geobj.formattedAddress).openPopup();
+				.bindPopup("U bevindt zich nabij " + geobj.formattedAddress).openPopup();
 			L.circle(latlong, radius).addTo(map);      
     }
 
@@ -67,6 +67,89 @@
 		map.on('locationerror', onLocationError);
 
 		map.locate({setView: true, maxZoom: 16});
+
+
+    var startingPoint, finishPoint;
+
+
+
+    function showStartPopup(obj) {
+      var geobj = obj.reverseGeoResponse.reverseGeoResult;
+      var latlong = new L.LatLng(geobj.latitude, geobj.longitude);
+      
+      startingPoint = latlong;
+
+      return L.marker(latlong).addTo(map)
+              .bindPopup("Van " + geobj.formattedAddress + "...").openPopup();
+    }
+
+
+    function drawRoute(obj) {
+      // console.log(obj);
+      return true;
+    }
+
+    function showEndPopup(obj) {
+      var geobj = obj.reverseGeoResponse.reverseGeoResult;
+      var latlong = new L.LatLng(geobj.latitude, geobj.longitude);
+
+      finishPoint = latlong;
+
+
+      // console.log("Start: " + startingPoint);
+      // console.log("Finish: " + finishPoint);
+
+      var queryString = 
+        startingPoint.lat.toFixed(2) + 
+        "," + 
+        startingPoint.lng.toFixed(2) + 
+        ":" + 
+        finishPoint.lat.toFixed(2) + 
+        "," + 
+        finishPoint.lng.toFixed(2);
+
+      // console.log(queryString);
+
+      // $.ajax({
+      //   url: "https://api.tomtom.com/lbs/services/route/3/" + queryString.toString() + "/Walk/jsonp?language=nl&abs=%3Aabs&callback=drawRoute&key=aztb7b4z64svu56d3wbvqd35",
+      //   dataType: "jsonp",
+      //   jsonpCallbackString: "drawRoute"
+      // });
+
+      return L.marker(latlong).addTo(map)
+              .bindPopup("...naar " + geobj.formattedAddress).openPopup();
+    }
+
+
+
+
+    var mapClicked = 1;
+
+    map.on('click', function(e){
+      mapClicked++;
+
+
+      if(mapClicked % 2 === 0) {
+        $.ajax({
+            url: 'https://api.tomtom.com/lbs/services/reverseGeocode/3/jsonp?point='+e.latlng.lat+'%2C'+e.latlng.lng+'&jsonp=showStartPopup&key=aztb7b4z64svu56d3wbvqd35',
+            dataType: 'jsonp',
+            jsonpCallbackString: 'showStartPopup'
+        });
+      } else {
+        $.ajax({
+            url: 'https://api.tomtom.com/lbs/services/reverseGeocode/3/jsonp?point='+e.latlng.lat+'%2C'+e.latlng.lng+'&jsonp=showEndPopup&key=aztb7b4z64svu56d3wbvqd35',
+            dataType: 'jsonp',
+            jsonpCallbackString: 'showEndPopup'
+        });
+      }
+
+    });
+
+
+
+
+
+
 	</script>
 	
 </body>
